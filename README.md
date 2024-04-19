@@ -1,1 +1,2 @@
-# TriangulationLearn
+# Introduction
+Learning Triangulation
