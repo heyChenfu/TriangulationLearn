@@ -9,6 +9,7 @@ namespace Triangulation2D
 {
     /// <summary>
     /// Bowyer-Watson算法Delaunay三角剖分
+    /// 根据wiki: https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm 伪代码编写
     /// </summary>
     public class TriangulationBowyerWatson
     {
@@ -23,9 +24,9 @@ namespace Triangulation2D
 
         }
 
-        public IEnumerator Build(List<Vector2> pointList, float interval)
+        public void Build(List<Vector2> pointList)
         {
-            //Profiler.BeginSample("TriangulationBowyerWatson");
+            Profiler.BeginSample("TriangulationBowyerWatson");
 
             List<Vertex2D> pointRefList = CalculationTool.RemoveTooClosePoint(pointList, 0.1f);
             float minX = 0, minY = 0, maxX = 0, maxY = 0;
@@ -56,11 +57,10 @@ namespace Triangulation2D
             Triangle2D largeTriangle2 = new Triangle2D(s3, s4, s5);
             Triangle2Ds.Add(largeTriangle1);
             Triangle2Ds.Add(largeTriangle2);
-            yield return new WaitForSeconds(interval);
 
             //受新插入点影响的三角形
             List<Triangle2D> badTriangles = new List<Triangle2D>();
-            List<Segment2D> rebuildSegment = new List<Segment2D>();
+            List<Segment2D> polygonHole = new List<Segment2D>();
             //遍历并将所有点插入
             for (int i = 0; i < pointRefList.Count; ++i)
             {
@@ -72,21 +72,21 @@ namespace Triangulation2D
                         badTriangles.Add(Triangle2Ds[j]);
                 }
                 //将受影响三角形且不属于其他三角形的边取出
-                rebuildSegment.Clear();
+                polygonHole.Clear();
                 for (int j = 0; j < badTriangles.Count; ++j)
                 {
                     for (int z = 0; z < badTriangles[j].SegmentArr.Length; ++z)
                     {
                         bool bFind = false;
-                        for (int k = 0; k < Triangle2Ds.Count; ++k)
+                        for (int k = 0; k < badTriangles.Count; ++k)
                         {
-                            if (Triangle2Ds[k] == badTriangles[j])
+                            if (badTriangles[k] == badTriangles[j])
                                 continue;
-                            if (Triangle2Ds[k].HasSegment(badTriangles[j].SegmentArr[z]))
+                            if (badTriangles[k].HasSegment(badTriangles[j].SegmentArr[z]))
                                 bFind = true;
                         }
                         if (!bFind)
-                            rebuildSegment.Add(badTriangles[j].SegmentArr[z]);
+                            polygonHole.Add(badTriangles[j].SegmentArr[z]);
                     }
                 }
                 //删除受影响的三角形
@@ -96,16 +96,14 @@ namespace Triangulation2D
                 }
                 //根据找到的边构建新的三角形
                 Vertex2D insertPoint = new Vertex2D(pointRefList[i].Point);
-                for (int j = 0; j  < rebuildSegment.Count; ++j)
+                for (int j = 0; j  < polygonHole.Count; ++j)
                 {
-                    Triangle2D newTriangle = new Triangle2D(rebuildSegment[j], 
-                        new Segment2D(rebuildSegment[j].P0, insertPoint), 
-                        new Segment2D(rebuildSegment[j].P1, insertPoint));
+                    Triangle2D newTriangle = new Triangle2D(polygonHole[j], 
+                        new Segment2D(polygonHole[j].P0, insertPoint), 
+                        new Segment2D(polygonHole[j].P1, insertPoint));
                     Triangle2Ds.Add(newTriangle);
                 }
-                yield return new WaitForSeconds(interval);
             }
-            yield return new WaitForSeconds(interval);
             //删除外接三角形
             for (int i = Triangle2Ds.Count - 1; i >= 0; --i)
             {
@@ -122,7 +120,7 @@ namespace Triangulation2D
                     Triangle2Ds.RemoveAt(i);
             }
 
-            //Profiler.EndSample();
+            Profiler.EndSample();
         }
 
         public void DrawGizmos()

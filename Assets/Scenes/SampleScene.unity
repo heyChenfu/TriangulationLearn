@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a92af6e315e8ed445b33049bcb4e8d1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomPointCount: 4
+  RandomPointCount: 30
   PointList: []
 --- !u!4 &81304918
 Transform:

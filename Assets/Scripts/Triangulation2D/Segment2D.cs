@@ -1,4 +1,5 @@
 ﻿
+using System.Drawing;
 using UnityEngine;
 
 namespace Triangulation2D
@@ -44,6 +45,33 @@ namespace Triangulation2D
             P0 = p0;
             P1 = p1;
 
+        }
+
+        public static bool operator ==(Segment2D a, Segment2D b)
+        {
+            return (a.P0 == b.P0 && a.P1 == b.P1) || (a.P1 == b.P0 && a.P0 == b.P1);
+        }
+
+        public static bool operator !=(Segment2D a, Segment2D b)
+        {
+            return !((a.P0 == b.P0 && a.P1 == b.P1) || (a.P1 == b.P0 && a.P0 == b.P1));
+        }
+
+        public override bool Equals(object other)
+        {
+            if (!(other is Segment2D))
+                return false;
+            return Equals((Segment2D)other);
+        }
+
+        public bool Equals(Segment2D other)
+        {
+            return (P0.Equals(other.P0) && P1.Equals(other.P1)) || (P1.Equals(other.P0) && P0.Equals(other.P1));
+        }
+
+        public override int GetHashCode()
+        {
+            return P0.GetHashCode() ^ P1.GetHashCode();
         }
 
         /// <summary>

@@ -52,7 +52,7 @@ public class TriangulationBowyerWatsonDemo : MonoBehaviour
     public void Build()
     {
         _algorithm = new TriangulationBowyerWatson();
-        StartCoroutine(_algorithm.Build(PointList, 0.5f));
+        _algorithm.Build(PointList);
 
     }
 

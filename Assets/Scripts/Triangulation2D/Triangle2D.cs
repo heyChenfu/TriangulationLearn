@@ -98,7 +98,7 @@ namespace Triangulation2D
             {
                 SegmentArr[i].DrawGizmos();
             }
-            _circumcircle?.DrawGizmos();
+            //_circumcircle?.DrawGizmos();
         }
 
 
