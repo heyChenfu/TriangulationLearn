@@ -14,10 +14,11 @@ public class TriangulationBowyerWatsonDemo : MonoBehaviour
     private void Awake()
     {
         UnityEngine.Random.InitState(DateTime.UtcNow.Millisecond);
+        int range = RandomPointCount;
         for (int i = 0; i < RandomPointCount; ++i)
         {
-            float randomX = UnityEngine.Random.Range(-10, 10);
-            float randomZ = UnityEngine.Random.Range(-10, 10);
+            float randomX = UnityEngine.Random.Range(-range, range);
+            float randomZ = UnityEngine.Random.Range(-range, range);
             PointList.Add(new Vector2(randomX, randomZ));
         }
         Build();

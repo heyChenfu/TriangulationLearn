@@ -8,7 +8,7 @@ using UnityEngine.Profiling;
 namespace Triangulation2D
 {
     /// <summary>
-    /// Bowyer-Watson算法Delaunay三角剖分
+    /// Bowyer-Watson算法Delaunay三角剖分(朴素无优化版本)
     /// 根据wiki: https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm 伪代码编写
     /// </summary>
     public class TriangulationBowyerWatson
@@ -24,54 +24,28 @@ namespace Triangulation2D
 
         }
 
-        public void Build(List<Vector2> pointList)
+        public void Build(List<Vector2> pList)
         {
-            Profiler.BeginSample("TriangulationBowyerWatson");
+            //Profiler.BeginSample("TriangulationBowyerWatson");
 
-            List<Vertex2D> pointRefList = CalculationTool.RemoveTooClosePoint(pointList, 0.1f);
-            float minX = 0, minY = 0, maxX = 0, maxY = 0;
-            //获取最大最小点
-            for (int i = 0; i < pointRefList.Count; ++i)
-            {
-                if (pointRefList[i].Point.x < minX)
-                    minX = pointRefList[i].Point.x;
-                if (pointRefList[i].Point.y < minY)
-                    minY = pointRefList[i].Point.y;
-                if (pointRefList[i].Point.x > maxX)
-                    maxX = pointRefList[i].Point.x;
-                if (pointRefList[i].Point.y > maxY)
-                    maxY = pointRefList[i].Point.y;
-            }
-            //创建一个大的外接三角形以包含所有点
-            float offset = Mathf.Max(maxX - minX, maxY - minY) * CreateLargeTriangleOffset;
-            Vertex2D p1 = new Vertex2D(minX - offset, minY - offset);
-            Vertex2D p2 = new Vertex2D(minX - offset, maxY + offset);
-            Vertex2D p3 = new Vertex2D(maxX + offset, minY - offset);
-            Vertex2D p4 = new Vertex2D(maxX + offset, minY + offset);
-            Segment2D s1 = new Segment2D(p1, p2);
-            Segment2D s2 = new Segment2D(p1, p3);
-            Segment2D s3 = new Segment2D(p2, p3);
-            Segment2D s4 = new Segment2D(p4, p2);
-            Segment2D s5 = new Segment2D(p4, p3);
-            Triangle2D largeTriangle1 = new Triangle2D(s1, s2, s3);
-            Triangle2D largeTriangle2 = new Triangle2D(s3, s4, s5);
-            Triangle2Ds.Add(largeTriangle1);
-            Triangle2Ds.Add(largeTriangle2);
+            List<Vertex2D> pointList = CalculationTool.RemoveTooClosePoint(pList, 0.1f);
+            Triangle2D largeTriangle = SuperTriangle(pointList, out Vertex2D p1, out Vertex2D p2, out Vertex2D p3);
+            Triangle2Ds.Add(largeTriangle);
 
-            //受新插入点影响的三角形
+            //受新插入点影响的坏三角形集合
             List<Triangle2D> badTriangles = new List<Triangle2D>();
             List<Segment2D> polygonHole = new List<Segment2D>();
             //遍历并将所有点插入
-            for (int i = 0; i < pointRefList.Count; ++i)
+            for (int i = 0; i < pointList.Count; ++i)
             {
                 badTriangles.Clear();
                 //判断需要插入的点是否在现有三角形外接圆内
                 for (int j = 0; j < Triangle2Ds.Count; ++j)
                 {
-                    if ((Triangle2Ds[j].GetCircumcircle()?.Contains(pointRefList[i].Point)).GetValueOrDefault())
+                    if ((Triangle2Ds[j].GetCircumcircle()?.Contains(pointList[i].Point)).GetValueOrDefault())
                         badTriangles.Add(Triangle2Ds[j]);
                 }
-                //将受影响三角形且不属于其他三角形的边取出
+                //取出坏三角形集合中, 不在两个坏三角形之间共享的边
                 polygonHole.Clear();
                 for (int j = 0; j < badTriangles.Count; ++j)
                 {
@@ -95,7 +69,7 @@ namespace Triangulation2D
                     Triangle2Ds.Remove(badTriangles[j]);
                 }
                 //根据找到的边构建新的三角形
-                Vertex2D insertPoint = new Vertex2D(pointRefList[i].Point);
+                Vertex2D insertPoint = new Vertex2D(pointList[i].Point);
                 for (int j = 0; j  < polygonHole.Count; ++j)
                 {
                     Triangle2D newTriangle = new Triangle2D(polygonHole[j], 
@@ -112,15 +86,45 @@ namespace Triangulation2D
                 {
                     if (Triangle2Ds[i].VertexArr[j] == p1 ||
                         Triangle2Ds[i].VertexArr[j] == p2 ||
-                        Triangle2Ds[i].VertexArr[j] == p3 ||
-                        Triangle2Ds[i].VertexArr[j] == p4)
+                        Triangle2Ds[i].VertexArr[j] == p3)
                         bDelete = true;
                 }
                 if (bDelete)
                     Triangle2Ds.RemoveAt(i);
             }
 
-            Profiler.EndSample();
+            //Profiler.EndSample();
+        }
+
+        /// <summary>
+        /// 构建一个足够大包含了所有点的三角形
+        /// </summary>
+        /// <param name="pointList"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="p3"></param>
+        /// <returns></returns>
+        public Triangle2D SuperTriangle(List<Vertex2D> pointList, out Vertex2D p1, out Vertex2D p2, out Vertex2D p3)
+        {
+            float minX = 0, minY = 0, maxX = 0, maxY = 0;
+            //获取最大最小点
+            for (int i = 0; i < pointList.Count; ++i)
+            {
+                if (pointList[i].Point.x < minX)
+                    minX = pointList[i].Point.x;
+                if (pointList[i].Point.y < minY)
+                    minY = pointList[i].Point.y;
+                if (pointList[i].Point.x > maxX)
+                    maxX = pointList[i].Point.x;
+                if (pointList[i].Point.y > maxY)
+                    maxY = pointList[i].Point.y;
+            }
+            var dx = (maxX - minX) * CreateLargeTriangleOffset;
+            var dy = (maxY - minY) * CreateLargeTriangleOffset;
+            p1 = new Vertex2D(minX - dx, minY - dy * 3);
+            p2 = new Vertex2D(minX - dx, maxY + dy);
+            p3 = new Vertex2D(maxX + dx * 3, maxY + dy);
+            return new Triangle2D(p1, p2, p3);
         }
 
         public void DrawGizmos()
