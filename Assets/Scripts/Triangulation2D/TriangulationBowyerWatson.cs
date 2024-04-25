@@ -1,14 +1,16 @@
 ﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace Triangulation2D
 {
     /// <summary>
-    /// Bowyer-Watson算法Delaunay三角剖分(朴素无优化版本)
+    /// Bowyer-Watson算法Delaunay三角剖分(增量法)
     /// 根据wiki: https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm 伪代码编写
     /// </summary>
     public class TriangulationBowyerWatson
@@ -27,6 +29,7 @@ namespace Triangulation2D
         public void Build(List<Vector2> pList)
         {
             //Profiler.BeginSample("TriangulationBowyerWatson");
+            double startTime = CalculationTool.GetCurrentTimestamp();
 
             List<Vertex2D> pointList = CalculationTool.RemoveTooClosePoint(pList, 0.1f);
             Triangle2D largeTriangle = SuperTriangle(pointList, out Vertex2D p1, out Vertex2D p2, out Vertex2D p3);
@@ -94,6 +97,8 @@ namespace Triangulation2D
             }
 
             //Profiler.EndSample();
+            double endTime = CalculationTool.GetCurrentTimestamp();
+            Debug.Log($"算法耗时:{(endTime - startTime) / 1000}秒");
         }
 
         /// <summary>

@@ -86,6 +86,10 @@ namespace Triangulation2D
             return removeList;
         }
 
+        public static double GetCurrentTimestamp()
+        {
+            return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds;
+        }
 
     }
 
