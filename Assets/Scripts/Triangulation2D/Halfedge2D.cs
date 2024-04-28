@@ -7,7 +7,7 @@ namespace Triangulation2D
     /// 它将三角形的每条边拆分为两个半边，每个半边记录了其 起始顶点、终止顶点、相邻面 等信息
     /// 这种数据结构在图形学和几何算法中被广泛应用，能够高效地进行各种几何计算和查询操作
     /// </summary>
-    public class Halfedge2D
+    public class HalfEdge2D
     {
         /// <summary>
         /// 起始顶点和终止顶点
@@ -17,10 +17,17 @@ namespace Triangulation2D
         /// <summary>
         /// 上一个半边, 下一个半边, 顶点相同的另一个半边
         /// </summary>
-        public Halfedge2D Previous, Next, Twins;
+        public HalfEdge2D Previous, Next, Twins;
         //半边方向所相邻的三角面
         public Triangle2D Face;
 
+        public HalfEdge2D(Vertex2D startPoint, Vertex2D endPoint)
+        {
+            StartPoint = startPoint;
+            EndPoint = endPoint;
+            Previous = this;
+            Next = this;
+        }
     }
 
 }

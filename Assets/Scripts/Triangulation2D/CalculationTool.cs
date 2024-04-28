@@ -74,14 +74,9 @@ namespace Triangulation2D
             List<Vertex2D> removeList = new List<Vertex2D>(list.Count);
             for (int i = 0; i < list.Count; ++i)
             {
-                bool bTooClose = false;
-                for (int j = i + 1; j < list.Count; ++j)
-                {
-                    if(Vector2.Distance(list[i], list[j]) <= threshold)
-                        bTooClose = true;
-                }
-                if (!bTooClose)
-                    removeList.Add(new Vertex2D(list[i]));
+                if ((i + 1) < list.Count && Vector2.Distance(list[i], list[i + 1]) <= threshold)
+                    continue;
+                removeList.Add(new Vertex2D(list[i]));
             }
             return removeList;
         }
@@ -89,6 +84,21 @@ namespace Triangulation2D
         public static double GetCurrentTimestamp()
         {
             return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds;
+        }
+
+        /// <summary>
+        /// 点和线段的叉乘计算, 小于零则p在ab左侧, 大于零则在右侧。原理是通过叉乘正负来判断p和ab位置关系
+        /// 例如有两个不共线的单位向量A, B做叉乘
+        /// AxB表示将矢量A绕轴B顺时针旋转90度, BxA表示将矢量A绕轴B逆时针旋转90度
+        /// </summary>
+        /// <param name="p">目标点</param>
+        /// <param name="a">线段a点</param>
+        /// <param name="b">线段b点</param>
+        /// <returns></returns>
+        public static float CrossProduct(Vector2 p, Vector2 a, Vector2 b)
+        {
+            //ab向量(b.x-a.x, b.y-a.y)叉乘ap(p.x-a.x, p.y-a.y)向量, ABx * APy - ABy * APx
+            return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
         }
 
     }
