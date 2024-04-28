@@ -1,9 +1,12 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using Triangulation2D;
 using UnityEngine;
 
+/// <summary>
+/// 随机产生一定数目点的三角剖分
+/// </summary>
 public class TriangulationBowyerWatsonDemo : MonoBehaviour
 {
     public int RandomPointCount = 10;
@@ -53,7 +56,7 @@ public class TriangulationBowyerWatsonDemo : MonoBehaviour
     public void Build()
     {
         _algorithm = new TriangulationBowyerWatson();
-        _algorithm.Build(PointList);
+        _algorithm.Build(PointList, 0.1f);
 
     }
 

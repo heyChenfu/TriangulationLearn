@@ -26,12 +26,13 @@ namespace Triangulation2D
 
         }
 
-        public void Build(List<Vector2> pList)
+        public void Build(List<Vector2> pList, float threshold)
         {
             //Profiler.BeginSample("TriangulationBowyerWatson");
             double startTime = CalculationTool.GetCurrentTimestamp();
 
-            List<Vertex2D> pointList = CalculationTool.RemoveTooClosePoint(pList, 0.1f);
+            Triangle2Ds.Clear();
+            List<Vertex2D> pointList = CalculationTool.RemoveTooClosePoint(pList, threshold);
             Triangle2D largeTriangle = SuperTriangle(pointList, out Vertex2D p1, out Vertex2D p2, out Vertex2D p3);
             Triangle2Ds.Add(largeTriangle);
 
