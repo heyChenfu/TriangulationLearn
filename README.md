@@ -1,4 +1,11 @@
-# Introduction
+ï»¿# Introduction
 Learning Triangulation
-![Ëæ»úµã»æÖÆ](images/RandomPoint.png)
-![ÊÖ¶¯ÍÏ×§»æÖÆ](images/PaintPolygon.png)
+
+
+![éšæœºç‚¹ç»˜åˆ¶](images/RandomPoint.png)
+
+
+![æ‰‹åŠ¨æ‹–æ‹½ç»˜åˆ¶](images/PaintPolygon.png)
+
+## Reference
+>[unity-triangulation2D](https://github.com/mattatz/unity-triangulation2D)
